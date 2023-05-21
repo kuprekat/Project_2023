@@ -23,10 +23,9 @@ class Cut:
 
     
 
-def cut_dag(H, inputs):
+def cut_dag(G, inputs):
     #cuts_dict: {"x1":[cut1, cut2, ..], "x2": [], ...}
     cuts_dict = {}
-    G = H.reverse()
     prev_node = ""
     #for each node
     for n in nx.topological_sort(G):
@@ -44,8 +43,11 @@ def cut_dag(H, inputs):
         #all closest ancestors
         sources = list(zip(*anc))[0]
         counter = 0
+        print("DEBUG: ", "node ", n, "sources: ", sources, "input_amount ", inputs_amount, "\n")
+        #max of 2 ancestors
         for in_edge in anc:
             if counter == 0:
+                print("IN EDGE ", in_edge, "counter ", counter)
                 #left_anc_cuts is list of cuts: left in_edge + all the cuts of left ancestor
                 list_tmp = [in_edge]
                 left_anc_cuts.append(Cut(list_tmp))
@@ -53,10 +55,20 @@ def cut_dag(H, inputs):
                 left_edge = in_edge
                 counter += 1
             else:
+                print("IN EDGE ", in_edge, "counter ", counter)
                 #right_anc_cuts is list of cuts: right in_edge + all the cuts of right ancestor
+                list_tmp = [in_edge]
                 right_anc_cuts.append(Cut(list_tmp))
                 right_anc_cuts += cuts_dict[sources[counter]]
                 right_edge = in_edge
+        print("DEBUG1: ", "node ", n, "\n")
+        print("L: ") 
+        for l in left_anc_cuts:
+        	print(l.get_inputs(), " ")
+        print("R: ") 
+        for r in right_anc_cuts:
+        	print(r.get_inputs(), " ")
+        #print("DEBUG1: ", "node ", n, "sources: ", left_anc_cuts.get_inputs(), right_anc_cuts.get_inputs(),  "\n")
         for prev_cut_l in left_anc_cuts:
             new_cut_outputs = prev_cut_l.get_outputs().copy()
             if left_edge in new_cut_outputs:
@@ -81,12 +93,6 @@ def cut_dag(H, inputs):
     for key in cuts_dict.keys():
         for node_cut in cuts_dict[key]:
             print(key, node_cut.get_inputs(), node_cut.get_outputs())
-
-        
-            
-
-        
-        
 
         
             
